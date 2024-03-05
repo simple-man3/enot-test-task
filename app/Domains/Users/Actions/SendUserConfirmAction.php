@@ -10,22 +10,15 @@ use App\Http\ApiV1\Consts\UserNotificationEnums;
 
 class SendUserConfirmAction
 {
-    public function __construct(
-        protected SmsUserConfirmApi $smsUserConfirmApi,
-        protected EmailUserConfirmApi $emailUserConfirmApi,
-        protected TelegramUserConfirmApi $telegramUserConfirmApi
-    ) {
-    }
-
     /**
      * @throws EnumException
      */
     public function execute(array $validated): void
     {
         match($validated['type']) {
-            UserNotificationEnums::SMS->value => $this->smsUserConfirmApi->sendConfirm($validated, UserNotificationEnums::SMS),
-            UserNotificationEnums::EMAIL->value => $this->emailUserConfirmApi->sendConfirm($validated, UserNotificationEnums::EMAIL),
-            UserNotificationEnums::TELEGRAM->value => $this->telegramUserConfirmApi->sendConfirm($validated, UserNotificationEnums::TELEGRAM),
+            UserNotificationEnums::SMS->value => resolve(SmsUserConfirmApi::class)->sendConfirm($validated, UserNotificationEnums::SMS),
+            UserNotificationEnums::EMAIL->value => resolve(EmailUserConfirmApi::class)->sendConfirm($validated, UserNotificationEnums::EMAIL),
+            UserNotificationEnums::TELEGRAM->value => resolve(TelegramUserConfirmApi::class)->sendConfirm($validated, UserNotificationEnums::TELEGRAM),
             default => throw new EnumException('Does not find type confirm')
         };
     }
